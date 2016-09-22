@@ -22,7 +22,7 @@ Usage: spot-fetch.py -h
 import argparse, getpass
 import urllib2
 
-BASE_FEED_URL = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/%s/%s.%s"
+BASE_FEED_URL = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/%s/%s.%s?start=%s"
 TYPE_LATEST = "latest"
 TYPE_ALL = "message"
 FORMAT_JSON = "json"
@@ -30,8 +30,8 @@ FORMAT_XML = "xml"
 PASSWORD = "?feedPassword=%s"
 
 
-def fetch_data(glid, type = TYPE_ALL, format = FORMAT_JSON, password = None):
-    url = BASE_FEED_URL % (glid, type, format)
+def fetch_data(glid, type = TYPE_ALL, format = FORMAT_JSON, password = None, start = 1):
+    url = BASE_FEED_URL % (glid, type, format, start)
 
     if password:
         url += PASSWORD % (password)
@@ -50,6 +50,7 @@ def _main():
     parser.add_argument('-p', '--password', action='store_true', help="Prompts for the feed's password interactively")
     parser.add_argument('-P', '--no-prompt-password', help="The feed's password read from the arguments")
     parser.add_argument('-e', '--no-empty', action='store_true', help="Don't output anything if there are no messages available")
+    parser.add_argument('-s', '--start', type=int, default=1, help="Don't output anything if there are no messages available")
     args = parser.parse_args()
 
     password = None
@@ -58,7 +59,7 @@ def _main():
     elif args.no_prompt_password:
         password = args.no_prompt_password
 
-    data = fetch_data(args.glid[0], args.type, args.format, password)
+    data = fetch_data(args.glid[0], args.type, args.format, password, args.start)
     if args.no_empty and data.find("No Messages to display") > 0:
         return
 
